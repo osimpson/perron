@@ -2,6 +2,8 @@ function [ dom ] = llsmvector( A )
 %LLSMVECTOR Summary of this function goes here
 %   Detailed explanation goes here
 
+%add commments!
+
 [n,m]=size(A);
 v=zeros(n,1);
 J=prod(A,2,'native');
