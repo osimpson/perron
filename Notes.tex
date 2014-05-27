@@ -1,0 +1,230 @@
+\documentclass[a4,11pt,twoside,leqno]{report}
+\setlength{\topmargin}{0cm} \setlength{\textheight}{215mm}
+\setlength{\oddsidemargin}{0.5cm}
+\setlength{\evensidemargin}{0.5cm}\setlength{\textwidth}{160mm}
+
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{pgf}
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata}
+\usepackage[latin1]{inputenc}
+\usepackage[mathscr]{euscript}
+\usepackage{tabularx}
+
+\newcommand{\BigO}[1]{\ensuremath{\operatorname{O}\bigl(#1\bigr)}}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definition}
+\theoremstyle{remark}
+\newtheorem{rem}[thm]{Remark}
+\newtheorem*{ex}{Example}
+\numberwithin{equation}{section}
+\newtheorem*{Claim}{Claim}
+
+\begin{document}
+
+\title{Notes for Research Project on Ranking}
+\author{Sinan Aksoy, Fan Chung, Olivia Simpson}
+
+
+\maketitle
+
+\tableofcontents
+
+
+\chapter{Background}
+
+Here, we give some background on our problem. We start by listing some of the basic properties of the matrices we will be considering. Then, we briefly consider two popular ranking methods: the Perron eigenvalue method and the logarithmic least squares method. 
+
+\section{Relevant Matrices}
+\subsection{Positive matrices}
+
+
+\begin{thm}[Perron-Frobenius \cite{analytic} \cite{hornandjohnson}] Let $A>0$. Then:
+\begin{enumerate}
+\item There is a positive (column) vector $w$ such that $Aw=\rho(A)w$. We call $w$ the {\em right Perron vector} of $A$. Similarly, there is a positive (row) vector $v$ such that $vA=\rho(A)v$. We call $v$ the {\em left Perron vector} of $A$. 
+\item The right Perron vector $w$ is orthogonal to all other eigenvectors in right eigenspace; similarly, $v$ is orthogonal to all other eigenvectors in left eigenspace. 
+\item $\rho(A)$ is an algebraically (and hence geometrically) simple eigenvalue of $A$. 
+\item $\rho(A)$ is the unique eigenvalue of maximum modulus. 
+\item $\rho(A)$ is bounded above by the maximum row sum of $A$ and from below by the minimum row sum of $A$. 
+\end{enumerate}
+
+\end {thm}
+
+As an immediate corollary, we can state limiting behavior of positive matrices A in terms of the right and left Perron vectors:
+
+\begin{cor}[\cite{hornandjohnson}] Let $w$ and $v$ be the right and left Perron vectors of $A>0$. Assume $w$ and $v$ are scaled so that $wv=1$ Then:
+
+$$\lim_{m \rightarrow \infty} \Big(\frac{A}{\rho(A)}\Big)^m=vw$$
+
+\end{cor}
+
+Lastly, we note:
+
+\begin{thm}[\cite{analytic}] Let $A>0$. The largest eigenvalue of $A$, $\rho(A)$, increases as any element $a_{ij}$ increases. 
+\end{thm}
+
+\subsection{Positive reciprocal matrices}
+
+\begin{defn} $A$ is a positive reciprocal matrix if $a_{ij}>0$ and $a_{ji}=\frac{1}{a_{ij}}$. 
+
+\end{defn}
+
+\begin{thm}[\cite{analytic}] The eigenvalues of a positive reciprocal matrix satisfy:
+
+$$\displaystyle \sum_{\substack{{j,k}\\j\not=k}} \lambda_j\lambda_k=0$$
+
+\end{thm}
+
+
+\subsection{Positive consistent (reciprocal) matrices}
+
+\begin{defn} A matrix $A$ is said to be consistent if $a_{ij}a_{jk}=a_{ik}$ for all $i,j,k$. In other words, a positive reciprocal matrix is consistent when pairwise dominance relations are transitive. \\
+
+\noindent {\bf Comment}: Using the above definition, along with the fact that $a_{ji}=1/{a_{ij}}$, the consistency condition becomes $a_{ij}a_{jk}a_{ki}=1$. So, one can also define consistency in a graph theoretic sense: if we think of our matrix $A$ as describing a weighted adjacency matrix, then consistency means that the product of the edge weights in any 3-cycle is 1. \\
+
+\noindent {\bf Comment}: Note that all positive consistent matrices are necessarily reciprocal matrices. Assuming $A$ is positive, the definition of consistency implies $a_{ii}=1$, which, in turn, implies $a_{ij}=a_{ii}/a_{ji}=1/a_{ji}$. Thus, a positive, consistent matrix is necessarily a consistent, positive reciprocal matrix (but the converse is not necessarily true). \\
+
+\noindent {\bf Fact}: If $A$ is a consistent positive reciprocal matrix, then the right and left Perron vectors of $A$, $w$ and $v$, are reciprocals of each other up to a multiplicative factor. That is, there exists $c\in \mathbb{R}$ such that:
+
+$$w_i=c\Big(\frac{1}{v_i}\Big)$$
+
+ Next, we note that consistency can be characterized in terms of the largest eigenvalue of a reciprocal matrix:
+
+\begin{thm}[\cite{analytic}] Let $A$ be a positive reciprocal matrix. Then $A$ is consistent if and only if $\rho(A)=n$.
+
+\end{thm}
+
+Consistent, positive reciprocal matrices also satisfy:
+
+\begin{thm}[\cite{analytic}] Let $A$ be a consistent, positive reciprocal matrix. Then:
+
+$$A^k=n^{k-1}A$$
+
+\end{thm}
+
+A natural question that arises is how to measure consistency in matrices that aren't consistent. Several metrics have been proposed - we mention a popular ''consistency index'' below defined by Saaty \cite{analytic}:
+
+\begin{defn} The Consistency Index (C.I.) of a positive reciprocal matrix $A$ is defined as:
+
+$$\mbox{C.I.}=\frac{\rho(A)-n}{n-1}$$
+
+\end{defn}
+
+\noindent {\bf Open Conjecture}: Let $A\in M_n$ be a positive, reciprocal matrix with $n\geq 4$. The right and left Perron vectors of $A$ are reciprocals of each other (up to a multiplicative factor) if and only if $A$ is consistent.  (Note: for $n=2$, any positive reciprocal matrix is consistent. For $n=3$, it has been proven that regardless of consistency, the right and left eigenvectors are reciprocals of each other. As far as I can tell, the conjecture is still unproven for $n\geq4$.) \\
+
+\noindent {\bf Comment}: While it may not be helpful, we note the above conjecture can be alternatively stated in the language of graph theory: Let $A$ be the weighted adjacency matrix of the complete weighted digraph on $n$ vertices for $n\geq 4$. The products of the edge weights of every 3-cycle is 1 if and only if the right and left Perron vectors of $A$ are reciprocals (up to a multiplicative factor) of each other.
+
+\end{defn}
+
+\section{Two ranking methods}
+
+\subsection{Perron eigenvalue method}
+
+Saaty advocates use of the Perron eigenvalue method in which the ranking is given by the Perron vector of $A$. Saaty makes two key points to justify this method. The first is that, when $A$ is consistent, the Perron vector $w$ satisfies:
+
+$$a_{ij}=\frac{w_i}{w_j}$$
+
+This can be easily proved. Since every elements of $A$ can be determined from the first row of $A$, $A$ has rank one and exactly one nonzero eigenvalue. Using the aforementioned fact that $A^2=nA$, and denoting the columns of $A$ as $[a_1,a_2,\dots,a_n]$ we can see:
+
+$$\begin{array}{lcl} A^2&=&A[a_1,a_2,\dots,a_n] \\ &=&[Aa_1,Aa_2,\dots,Aa_n] \\ &=& [na_1,na_2,\dots,na_n] \\ &=& nA\end{array}$$
+
+which tells us the columns of $A$ are all scalar multiples of the (unique) dominant eigenvector. So, for column $a_k$, the Perron vector $w$ satisfies, for some scalar $c$:
+
+$$\begin{array}{lcl}w_i&=&ca_{ik}\\ w_j&=&ca_{jk} \end{array}$$
+
+which, if we take the ratio and use the consistency definition, yields the desired result: 
+
+$$a_{ij}=\frac{w_i}{w_j}$$
+
+The second key justification Saaty makes in favor of using the Perron eigenvalue method concerns perturbation. Namely, he shows that small changes in the entries of the matrix result in small changes in the Perron vector. While these two arguments seem to be the most compelling, Saaty and others also have other arguments, including empirical arguments, on why the Perron vector should be used in ranking. 
+
+\subsubsection{Asymmetry in rankings derived from right and left Perron vectors}
+
+While Saaty and others have traditionally used the right Perron vector for ranking, there seems to be no justification for why the left eigenvector should not be used in place of the right eigenvector. Larger values in the right Perron vector signify a higher ranking for that item whereas smaller values in the left Perron vector signify a higher ranking for that item. In the case where $A$ is consistent, given the above mentioned reciprocal relationship between the right and left Perron vectors, both vectors will lead to the same ranking. However, if $A$ is inconsistent, then the right and left Perron vectors can lead to different rankings. In a recent survey of the Analytic Hierarchy Process, the author listed this issue as the largest theoretical dispute in the field. We give an example below from \cite{johnson} to that illustrates the rank reversal issue:
+
+$$A=\bordermatrix{\ & a & b & c & d \cr a & 1 & 3 & 1/3 & 1/2  \cr b & 1/3 & 1 & 1/6 & 2 \cr c & 3 & 6 & 1 &1\cr d & 2 & 1/2 & 1 & 1}$$
+
+\vspace{5mm}
+
+The right Perron vector is: $w=[0.184; 0.152; 0.436; 0.227]$, which leads to the ranking: $c>d >a >b$ while the left Perron vector is $v=[0.248, 0.338, 0.105, 0.259]$, which leads to the different ranking of $c>a>d>b$.
+
+\subsection{Logarithmic least squares method}
+
+The Perron vector is not the only continuous vector-valued function of positive reciprocal matrices that yields the correct scale when the matrix is consistent. Another popular method that also meets these criteria, introduced in \cite{crawford}, is the geometric mean method, or more commonly known as logarithmic least squares method (LLSM). This approach minimizes the multiplicative error; that is, if $p$ denotes the LLSM vector, then this method aims to minimize $e_{ij}$ below:
+
+$$a_{ij}=\frac{p_i}{p_j}e_{ij}$$
+
+That is, LLSM assumes the multiplicative error and aims to minimize the sums of these errors:
+
+$$\displaystyle \sum_{i,j=1}^n \big(\ln{a_{ij}}-\ln{\frac{p_i}{p_j}}\big)^2$$
+
+
+The normalized LLSM vector is given by:
+
+$$p_i= \frac{\displaystyle\Big(\prod_{j=1}^n a_{ij}\Big)^{1/n}}{\displaystyle \sum_{i=1}^{n}\Big(\prod_{j=1}^n a_{ij}\Big)^{1/n}}$$
+
+The list of relative pros and cons of Perron eigenvalue method versus the LLSM remains long and is a topic of debate. 
+
+
+\chapter{PageRank and Heat Kernel PageRank}
+
+(This chapter is forthcoming)
+
+\section{PageRank}
+
+\begin{defn}
+
+$$\alpha \displaystyle \sum_{k=0}^{\infty} (1-\alpha)^k \frac{A^ke}{e^TA^ke}$$
+
+\end{defn}
+
+\section{Heat Kernel PageRank}
+
+\begin{defn} 
+
+$$e^t \displaystyle \sum_{k=0}^{\infty} \frac{t^k}{k!} \ \frac{A^ke}{e^TA^ke}$$
+
+\end{defn}
+
+\begin{thebibliography}{1}
+
+  \bibitem{analytic} T. Saaty, {\em The analytic hierarchy process}, McGraw-Hill, New York, 1980. 
+  
+  \bibitem{perroninsight} T. Saaty, Rank according to Perron: a new insight, {\em Mathematics Magazine}, {\bf 60}(4) (1987) 211-212.
+
+  \bibitem{hornandjohnson} R. Horn and C. Johnson, {\em Matrix Analysis}, Cambridge University Press, Cambridge, UK, 1999.
+
+  \bibitem{johnson} C. Johnson, W. Beine, T. Wang, Right-left asymmetry in an eigenvector ranking procedure, {\em Journal of Mathematical Psychology}, {\bf 19} (1979) 61-64.
+  
+  \bibitem{crawford} G. Crawford and C. Williams, A note on the analysis of subjective judgement matrices, {\em Journal of Mathematical Psychology} {\bf 29} (1985) 387-405
+  
+  
+  
+  %\bibitem{directedlaplacian} F. Chung, Laplacians and the Cheeger inequality for directed graphs, {\em Annals of Combinatorics}, 9 (2005), no. 1, p. 1-19. 
+  
+  %\bibitem{tarjan} F. Chung, M. Garey, and R. Tarjan, Strongly connected orientations of mixed multigraphs, {\em Networks} 15 (1985), no. 4, 477-484.
+  
+  %\bibitem{robbins} H.E. Robbins, A theorem on graphs, with an application to a problem of traffic control, {\em Am. Math. Monthly}, {\bf 46} (1939) 281-283.
+  
+  %\bibitem{tindell} F. Boesch and R. Rindell, Robbin's theorem for mixed multi graphs, Am. {\em Am. Math Monthly}, {\bf 87}, (1980) 716-719.
+   
+ % \bibitem{chunglu} F. Chung and L. Lu, {\em Complex Graphs and Networks}, AMS Publications, 2006.
+  
+ % \bibitem{chunglu2} F. Chung and L. Lu, Connected components in random graphs with given expected degree sequences, {\em Annals of Combinatorics} 6 (2002), no. 2, 125-145.
+
+% \bibitem{radcliffe} F. Chung and M. Radcliffe, On the spectra of general random graphs, {\em Electronic Journal of Combinatorics}, 18(1), (2011).
+
+  %\bibitem{sudakov} M. Krivelevich and B. Sudakov, Pseudo-random graphs, in: {\em More Sets, Graphs, and Numbers}, Bolyai Society Mathematical Studies 15, Springer, (2006), p 199-262.
+
+
+  \end{thebibliography}
+
+
+\end{document}
