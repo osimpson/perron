@@ -1,0 +1,13 @@
+Testing the offense/defense vectors as ranking vectors for a positive
+reciprocal 100x100 matrix A.  The vector are the real and imaginary parts of
+the eigenvector f=o+id of B=log(A) that minimizes ||B-\lambda*f*ctranspose(f)||.
+Sometime we will use the ranking including the imaginary part of the
+corresponding eigenvalue, r.
+
+Offense/defense score for B without eigenvalue	 85.715881
+Offense/defense score for B with eigenvalue	 85.715881
+Offense/defense score for A without eigenvalue	 1942.571374
+Offense/defense score for A with eigenvalue	 1941.843051
+Ratio score for A using f	 1943.760123
+Ratio score for A using abs(f)	 1941.615531
+Ratio score for A using perron vector	 1949.721077
