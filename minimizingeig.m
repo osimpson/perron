@@ -1,4 +1,4 @@
-function [ vec, ind ] = dominanteig( B )
+function [ vec, ind ] = minimizingeig( B )
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 
