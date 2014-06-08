@@ -4,7 +4,7 @@
 \setlength{\evensidemargin}{0.5cm}\setlength{\textwidth}{160mm}
 
 \usepackage{amsfonts}
-\usepackage{amssymb}
+\usepackage{amssymb,amsfonts}
 \usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{pgf}
@@ -13,6 +13,9 @@
 \usepackage[latin1]{inputenc}
 \usepackage[mathscr]{euscript}
 \usepackage{tabularx}
+\usepackage{algorithmicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 \newcommand{\BigO}[1]{\ensuremath{\operatorname{O}\bigl(#1\bigr)}}
 \newtheorem{thm}{Theorem}[section]
@@ -176,22 +179,58 @@ The list of relative pros and cons of Perron eigenvalue method versus the LLSM r
 
 \chapter{Ranking with Offense and Defense}
 
-Consider a network of players in a series of one-on-one competitions, the
-outcomes of which result in a score for each player relative to every other.
-The scores $s_{uv}$ represent pairwise dominance of the form ``player $u$ is
-$s_{uv}$ times better than player $v$.''  Naturally these are inverse
-relationships.
+\section{Introduction}
+Consider a network of players in a series of one-on-one competitions.
+The resources for these competitions may be limited, and we do not expect
+round-robin style matches.  Then, for a series of unevenly matched competitions,
+we are interested in an overall ranking of the players knowing the outcome of
+each competition.  In particular, we want to avoid giving preference to an
+undefeated player if they played fewer games, or if they played only lower
+ranked players.  We are interested in using a ``pairwise dominance''
+relationship between each pair of players to compute a total ranking of the
+players.
+
+The procedure for organizing the outcome data into a collection of pairwise
+dominance relationships results in a set of pairwise scores $s_{uv}$ describing
+player $u's$ relative strength over player $v$.  These scores can be organized
+in a matrix $(S)_{uv} = s_{uv}$.
+
+Many algorithms have been proposed for summarizing the pairwise dominance scores
+into a single definitive ranking of all players.  Ranking by the Perron vector
+was popularized by Saaty and is based on the following definition of ranking.
+Let $r = \{r_i\}_{i=1}^n$ be an absolute score assignment over the $n$ players
+in the network.  Then $r$ is a good ranking if $r(u)/r(v)$ is close the pairwise
+dominance of player $u$ over player $v$, $s_{uv}$.  Other single dimensional
+rankings have been proposed (LLSM, etc).
+
+Given the natural asymmetry of the propblem, however, we propose a new ranking
+which takes into account two ``scores.'' We will make these notions more precise
+in the next section.
+
+\section{Our methods}\label{sec:methods}
+
+\subsection{Pairwise dominance}
+The first task is organizing a collection of outcomes into the set of pairwise
+dominance scores $s_{uv}$.  Suppose players $u$ and $v$ competed each other in
+$\alpha$ and suppose that of these $\alpha$ games, player $u$ won $w_u$ games
+and player $v$ won $w_v$ games.  Then we will use the the arithmetic mean of
+score differences of~\cite{jiang:statistical:mp10}, and define pairwise
+dominance $s_{uv}$ as such:
+\begin{equation}\label{eq:suv}
+S(u,v) = s_{uv} = \frac{w_u - w_v}{\alpha}.
+\end{equation}
 
 This can by modeled by a complete directed graph, where the edge $(u,v)$ is
-weighted by the score $s_{uv}$.  Additionally each node has a directed loop of
-weight $s_{uu} = 1$.  We will refer to the adjacency matrix of this graph as
-the \emph{dominance matrix} of the network.
+weighted by the score $s_{uv}$.  Then the matrix $S$ is the adjacency matrix of
+the network.  We will refer to $S$ as the \emph{dominance matrix} of the
+network.
 
-Given a dominance matrix $A$ of a network, the goal is to construct a
-one-dimensional hierarchy of players in the network, called a ranking.  As
+\subsection{A new ranking algorithm}
+Given a dominance matrix $A$ of a network, the goal is to construct a single
+dimensional hierarchy of players in the network, called a ranking.  As
 mentioned, one possible ranking is a vector $r$ such that $r(u)/r(v)$ is a good
-approximation of $A(u,v)$.  This intuitively suggests that, as the $(u,v)^{th}$
-entry in $A$ represents the relative strength of member $u$ to member $v$, an
+approximation of $S(u,v)$.  This intuitively suggests that, as the $(u,v)^{th}$
+entry in $S$ represents the relative strength of member $u$ to member $v$, an
 appropriate ranking should respect this relationship.
 
 In this work, we suggest a new notion of ranking.  Namely, we generalize the
@@ -199,50 +238,64 @@ idea of dominance and consider facets of strength: offensive strength and
 defensive strength.
 
 \begin{defn}
-Let $A$ be a dominance matrix of a network.  Let $\omega, \delta: V\rightarrow
-\R$ be vectors assigning offensive and defensive strength, respectively, to each
-player.  Then a \emph{total hierarchical ranking} $R: V\times V \rightarrow \R$
-is given by
+Let $S$ be a dominance matrix of a network.  Then we say that the network has a
+\emph{total hierchical ranking} if there exist vectors $\omega, \delta: V
+\rightarrow \R$ such that
 \begin{equation}\label{eq:offdef}
-R(u,v) = c(\omega(u)\delta(v) - \delta(u)\omega(v)),
+S(u,v) = c(\omega(u)\delta(v) - \delta(u)\omega(v)) + \epsilon_{uv},
 \end{equation}
-for some constant $c$.
+for some constant $c$ and some allowable error $\epsilon_{uv}$.  We will refer
+to $\omega$ and $\delta$ as the \emph{offensive} ranking and $\emph{defensive}$
+ranking, respectively.
 \end{defn}
 
+\begin{algorithm}[H]
+\floatname{algorithm}{Algorithm}
+\caption{TotalHierarchicalRanking($S$)}
+\label{alg:thr}
+input: a dominance matrix $S$\\
+output: offensive ranking vector $\omega$, defensive ranking vector $\delta$\\
+\begin{algorithmic}
+  \State $\lambda=ir \gets$ largest eigenvalue of $S$
+  \State $f=a+ib \gets$ right eigenvector of $S$ corresponding to $\lambda$
+  \State $\omega \gets a$, $\delta \gets b$\\
+  \Return $\omega, \delta$
+\end{algorithmic} 
+\end{algorithm}
+
 \begin{thm}\label{thm:thr}
-Let $A$ be a dominance matrix of a network, and let $B$ be the matrix $B(u,v) =
-\log(A(u,v))$.  Finally, let $f$ be a solution to $fB = \lambda f$ for some
-eigenvalue $\lambda$ of $B$.  Then $\Re(\lambda f^*f)$ gives a total
-hierarchical ranking, where $f^*$ denotes the conjugate transpose of $f$.
+Let $G$ be a network with a total hierarchical ranking and let $S$ be the
+dominance matrix of $G$.  Then the vectors $\omega, \delta$ returned by
+TotalHierarchicalRanking($S$) are offensive and defensive ranking vectors.
 \end{thm}
 
 \begin{proof}
-We first note that the matrix $B$ is skew-symmetric, i.e., $B = -B^T$, as $A$ is
-a positive reciprocal matrix.  Thus, since the eigenvalues of $B$ are all of the
-form $\lambda = \pm i\mu$, $f$ must be a complex vector of the form $f = \psi +
-i\phi$.  Now we compute,
+We first note that the matrix $S$ is skew-symmetric, i.e., $S = -S^T$, by our
+definition of pairwise dominance (\ref{eq:suv}).  Thus, the eigenvalues of $S$
+are all of the form $\lambda = \pm ir$ for $r\in\R$, and $f$ must be a complex
+vector of the form $f = a + ib$.  Let's consider the spectral decomposition of
+$S$,
+\begin{equation}\label{eq:specdecomp}
+S = \sum_j \lambda_j f_jf_j^*,
+\end{equation}
+where $f^*$ denotes the conjugate transpose.  Each term of the series is given
+by
 \begin{align*}
-(\lambda f^* f)(u,v) &= i\mu((\psi+i\phi)(u)(\psi+i\phi)(v))\\
-&= i\mu(\psi(u)\psi(v) + \phi(u)\psi(v) + i\psi(u)\phi(v) -i\phi(u)\psi(v))\\
-&= -\mu(\psi(u)\phi(v) - \phi(u)\psi(v)) + i\mu(\psi(u)\psi(v) + \phi(v)\phi(v))
+(\lambda f f^*)(u,v) &= ir((a+ib)(u)(a-ib)(v))\\
+&= ir(a(u)a(v) + b(u)b(v) - ia(u)b(v) + ib(u)a(v))\\
+&= r(a(u)b(v) - b(u)a(v)) + ir(a(u)a(v) + b(v)b(v)).
 \end{align*}
-By taking $c = -\mu$, this matrix satisfies (\ref{eq:offdef}).
+
+With this, (\ref{eq:specdecomp}) can be rewritten:
+\begin{equation*}
+S(u,v) = \sum_j r_j(a_j(u)b_j(v) - b_j(u)a_j(v)) + ir_j(a_j(u)a_j(v) +
+b_j(v)b_j(v)).
+\end{equation*}
+By our assumption, there exist vectors $\omega, \delta$ such that
+(\ref{eq:offdef}) hold.  So we take the real part of the dominant eigenpair.
+
+
 \end{proof}
-
-\section{Analyzing a total hierarchicial ranking}
-
-By Theorem~\ref{thm:thr}, a total hierarchical ranking can be given in terms of
-some eigenfunction of the matrix $B$.  In this section, we explore how the
-choice of eigenfunction affects the quality of the ranking.
-
-\subsection{The score of a ranking}
-
-One possibility is simply measuring the spectral (or some other) norm $||R-A||$.
-Another idea, inspired by the LLSM, is to measure error in each component.  
-
-\subsection{Maximal rankings}
-
-One option: the eigenfunction $f$ minimizing $||B - \lambda f^* f||$.
 
 \chapter{PageRank and Heat Kernel PageRank}
 
@@ -276,7 +329,9 @@ $$e^t \displaystyle \sum_{k=0}^{\infty} \frac{t^k}{k!} \ \frac{A^ke}{e^TA^ke}$$
   
   \bibitem{crawford} G. Crawford and C. Williams, A note on the analysis of subjective judgement matrices, {\em Journal of Mathematical Psychology} {\bf 29} (1985) 387-405
   
-  
+  \bibitem{jiang:statistical:mp10} Xiaoye Jiang and Lek-Heng Lim and Yuan Yao and
+Yinyu Ye, Statistical ranking and combinatorial Hodge theory, \emph{Mathematical
+Programming}, \textbf{127} 1, (2011) 203--244. 
   
   %\bibitem{directedlaplacian} F. Chung, Laplacians and the Cheeger inequality for directed graphs, {\em Annals of Combinatorics}, 9 (2005), no. 1, p. 1-19. 
   
