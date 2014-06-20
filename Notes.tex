@@ -180,15 +180,14 @@ The list of relative pros and cons of Perron eigenvalue method versus the LLSM r
 \chapter{Ranking with Offense and Defense}
 
 \section{Introduction}
-Consider a network of players in a series of one-on-one competitions.
-The resources for these competitions may be limited, and we do not expect
-round-robin style matches.  Then, for a series of unevenly matched competitions,
-we are interested in an overall ranking of the players knowing the outcome of
-each competition.  In particular, we want to avoid giving preference to an
-undefeated player if they played fewer games, or if they played only lower
-ranked players.  We are interested in using a ``pairwise dominance''
-relationship between each pair of players to compute a total ranking of the
-players.
+Consider a network of players in a series of one-on-one competitions.  Suppose
+the resources for these competitions are limited so that we do not expect
+round-robin style matches.  For such a series of unevenly matched competitions
+we are interested in an overall ranking of the players.  In particular, we want
+to avoid giving preference to an undefeated player if they played fewer games,
+or if they played only lower ranked players.  We are interested in using a
+``pairwise dominance'' relationship between each pair of players to compute a
+total ranking of the players.
 
 The procedure for organizing the outcome data into a collection of pairwise
 dominance relationships results in a set of pairwise scores $s_{uv}$ describing
@@ -203,7 +202,7 @@ in the network.  Then $r$ is a good ranking if $r(u)/r(v)$ is close the pairwise
 dominance of player $u$ over player $v$, $s_{uv}$.  Other single dimensional
 rankings have been proposed (LLSM, etc).
 
-Given the natural asymmetry of the propblem, however, we propose a new ranking
+Given the natural asymmetry of the problem, however, we propose a new ranking
 which takes into account two ``scores.'' We will make these notions more precise
 in the next section.
 
@@ -211,8 +210,8 @@ in the next section.
 
 \subsection{Pairwise dominance}
 The first task is organizing a collection of outcomes into the set of pairwise
-dominance scores $s_{uv}$.  Suppose players $u$ and $v$ competed each other in
-$\alpha$ and suppose that of these $\alpha$ games, player $u$ won $w_u$ games
+dominance scores $s_{uv}$.  Suppose players $u$ and $v$  played $\alpha$ games
+against each other and that of these $\alpha$ games, player $u$ won $w_u$ games
 and player $v$ won $w_v$ games.  Then we will use the the arithmetic mean of
 score differences of~\cite{jiang:statistical:mp10}, and define pairwise
 dominance $s_{uv}$ as such:
@@ -291,9 +290,21 @@ With this, (\ref{eq:specdecomp}) can be rewritten:
 S(u,v) = \sum_j r_j(a_j(u)b_j(v) - b_j(u)a_j(v)) + ir_j(a_j(u)a_j(v) +
 b_j(v)b_j(v)).
 \end{equation*}
-By our assumption, there exist vectors $\omega, \delta$ such that
-(\ref{eq:offdef}) hold.  So we take the real part of the dominant eigenpair.
 
+Since eigenvalues come in conjugate pairs, we can simplify (\ref{eq:specdecomp})
+using the above
+\begin{align}
+S(u,v) &= \sum_{j=1}^{n/2} \lambda_j f_jf_j^* - \lambda_j
+\bar{f_j}f_j^T\nonumber\\
+&= \sum_{j=1}^{n/2} 2r_j(a_j(u)b_j(v) - b_j(u)a_j(v))\label{imag}\\
+&= 2r_1(a_1(u)b_1(v) - b_1(u)a_1(v)) + \sum_{j=2}^{n/2} 2r_j(a_j(u)b_j(v) -
+b_j(u)a_j(v))\nonumber\\
+\end{align}
+where (~\ref{imag}) is a result of the imaginary parts cancelling.  Since we
+assume $G$ has a total hierarchical ranking, we know there exist some vectors
+$\omega$, $\delta$ such that (\ref{eq:offdef}) holds, so if we show that
+$\sum_{j=2}^{n/2} 2r_j(a_j(u)b_j(v) - b_j(u)a_j(v))$ is reasonably small, we may
+choose $\omega = a$ and $\delta = b$ to complete the proof.
 
 \end{proof}
 
