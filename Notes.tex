@@ -206,6 +206,30 @@ Given the natural asymmetry of the problem, however, we propose a new ranking
 which takes into account two ``scores.'' We will make these notions more precise
 in the next section.
 
+\subsection{Tridiagonalizing Skew Symmetric Matrices}
+
+\begin{thm} Let $A$ be a real, skew-symmetric matrix. Then there exists a real, orthogonal matrix $V$ such that 
+$$V^TAV=T$$
+
+where $T=T_1 \oplus \dots \oplus T_k \oplus 0\oplus \dots \oplus 0$  where rank of $A$ is $2k$ and the number of zeros are $n-2k$ and 
+
+$$T_j=\begin{pmatrix} 0 & \lambda_j \\ -\lambda_j & 0 \end{pmatrix}$$
+
+for $j=1, \dots, k$. Alternatively written, we have:
+
+$$T=\begin{pmatrix} 0 & \lambda_1\\ -\lambda_1 & 0 \\ &  & 0 & \lambda_2 \\ & & -\lambda_2 & 0 \\ & & & & \ddots \\ & & & & & 0 & \lambda_k \\ & & &  & & -\lambda_k & 0 \\ & & & & & & & 0 \\ & & & & & & & & \ddots \\ & & &  & & & &  & & 0  \end{pmatrix}$$ 
+
+
+ $V$ may be chosen to that $\lambda_j$ are the singular values of $A$ (alternatively stated, $\lambda_j$ is the positive imaginary part of eigenvalue $i\lambda_j$). More generally, depending on the choice of $V$, we have:
+
+$$T_j=\begin{pmatrix} 0 & z_j \\ -z_j & 0 \end{pmatrix}$$
+
+for some real positive $z_j$.
+
+\end{thm}
+
+This decomposition is called the Youla decomposition and was first derived in \cite{youla}. As for how to actually compute $T$, that can be found in Appendix A of \cite{wimmer}. Presumably using methods in this paper, a user on MathStackExchange posted \cite{chip} a MATLAB function which tridiagonalizes a real skew-symmetric matrix (however, note that this particular algorithm does not yield non-zero entries $\lambda_j$ that are the singular values of $A$, rather, it just yields some positive $z_j$).
+
 \section{Our methods}\label{sec:methods}
 
 \subsection{Pairwise dominance}
@@ -343,7 +367,12 @@ $$e^t \displaystyle \sum_{k=0}^{\infty} \frac{t^k}{k!} \ \frac{A^ke}{e^TA^ke}$$
   \bibitem{jiang:statistical:mp10} Xiaoye Jiang and Lek-Heng Lim and Yuan Yao and
 Yinyu Ye, Statistical ranking and combinatorial Hodge theory, \emph{Mathematical
 Programming}, \textbf{127} 1, (2011) 203--244. 
-  
+
+\bibitem{youla} D.C. Youla, A normal form for a matrix under the unitary congruence group, {\em Canad. J. Math}. {\bf 13} (1960) 694-704.
+
+\bibitem{wimmer} M. Wimmer, Effcient numerical computation of the Pfaffan for dense and banded skew-symmetric matrices, http://arxiv.org/pdf/1102.3440.pdf
+\bibitem{chip} http://math.stackexchange.com/questions/167008/block-diagonalizing-an-antisymmetric-matrix
+ 
   %\bibitem{directedlaplacian} F. Chung, Laplacians and the Cheeger inequality for directed graphs, {\em Annals of Combinatorics}, 9 (2005), no. 1, p. 1-19. 
   
   %\bibitem{tarjan} F. Chung, M. Garey, and R. Tarjan, Strongly connected orientations of mixed multigraphs, {\em Networks} 15 (1985), no. 4, 477-484.
