@@ -1,0 +1,30 @@
+0 Orlando Magic
+1 Indiana Pacers
+2 Los Angeles Clippers
+3 Los Angeles Lakers
+4 Chicago Bulls
+5 Miami Heat
+6 Brooklyn Nets
+7 Cleveland Cavaliers
+8 Atlanta Hawks
+9 Dallas Mavericks
+10 Washington Wizards
+11 Detroit Pistons
+12 Golden State Warriors
+13 Charlotte Bobcats
+14 Houston Rockets
+15 Minnesota Timberwolves
+16 New Orleans Pelicans
+17 Milwaukee Bucks
+18 New York Knicks
+19 Philadelphia 76ers
+20 Portland Trail Blazers
+21 Phoenix Suns
+22 Denver Nuggets
+23 Sacramento Kings
+24 Memphis Grizzlies
+25 San Antonio Spurs
+26 Boston Celtics
+27 Toronto Raptors
+28 Oklahoma City Thunder
+29 Utah Jazz
