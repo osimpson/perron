@@ -206,7 +206,7 @@ Given the natural asymmetry of the problem, however, we propose a new ranking
 which takes into account two ``scores.'' We will make these notions more precise
 in the next section.
 
-\subsection{Tridiagonalizing Skew Symmetric Matrices}
+\subsection{Youla Decomposition for Skew Symmetric Matrices}
 
 \begin{thm} Let $A$ be a real, skew-symmetric matrix. Then there exists a real, orthogonal matrix $V$ such that 
 $$V^TAV=T$$
@@ -230,6 +230,111 @@ for some real positive $z_j$.
 
 This decomposition is called the Youla decomposition and was first derived in \cite{youla}. As for how to actually compute $T$, that can be found in Appendix A of \cite{wimmer}. Presumably using methods in this paper, a user on MathStackExchange posted \cite{chip} a MATLAB function which tridiagonalizes a real skew-symmetric matrix (however, note that this particular algorithm does not yield non-zero entries $\lambda_j$ that are the singular values of $A$, rather, it just yields some positive $z_j$).
 
+\subsection{Rewriting the Youla Decomposition}
+
+\begin{thm} Let $A$ be a real, skew-symmetric matrix with Youla decomposition $VAV^T=T$ where $V$ is a real and orthogonal and $T=T_1 \oplus \dots \oplus T_k \oplus 0\oplus \dots \oplus 0$  where rank of $A$ is $2k$ and the number of zeros are $n-2k$ and 
+
+$$T_j=\begin{pmatrix} 0 & \lambda_j \\ -\lambda_j & 0 \end{pmatrix}$$
+
+Then $A$ may be written as:
+
+$$A=\displaystyle \sum_{j=1}^n \lambda_j(v_{2j-1}v_{2j}^T-v_{2j}v_{2j-1}^T)$$
+
+where $v_j$ denotes column $j$ of $V$. Furthermore, we claim that the vector $v_{2j-1} + iv_{2j}$ is an eigenvector of $A$ associated with eigenvalue $i\lambda_j$. 
+ 
+\end{thm}
+
+\begin{proof}
+
+Consider the Youla decomposition $A=VTV^T$, where $v_j$ denotes column $j$ of $V$. 
+
+$$\begin{array}{lcl} A &=& \begin{pmatrix} v_1 & v_2 & \dots & v_n \end{pmatrix} \begin{pmatrix} 0 & \lambda_1\\ -\lambda_1 & 0 \\ &  & 0 & \lambda_2 \\ & & -\lambda_2 & 0 \\ & & & & \ddots \\ & & & & & 0 & \lambda_k \\ & & &  & & -\lambda_k & 0 \\ & & & & & & & 0 \\ & & & & & & & & \ddots \\ & & &  & & & &  & & 0  \end{pmatrix} \begin{pmatrix} v_1^T \\ v_2^T \\ \vdots \\ v_n^T \end{pmatrix} \\ &=& \begin{pmatrix} -\lambda_1v_2 & \lambda_1v_1 & -\lambda_2v_4 & -\lambda_2v_3 &\dots & -\lambda_kv_{2k} & \lambda_kv_{2k-1} & 0 & \dots & 0  \end{pmatrix} \begin{pmatrix} v_1^T \\ v_2^T \\ \vdots \\ v_n^T \end{pmatrix} \\ \\ &=& -\lambda_1v_2v_1^T+\lambda_1v_1v_2^T-\lambda_2v_4v_3^T+\lambda_2v_3v_4^T -\dots-\lambda_kv_{2k}v_{2k-1}^T+\lambda_kv_{2k-1}v_{2k}^T \\ \\ &=& \lambda_1(v_1v_2^T-v_2v_1^T)+\lambda_2(v_3v_4^T-v_4v_3^T)+\dots+\lambda_k(v_{2k-1}v_{2k}^T-v_{2k}v_{2k-1}^T) \\ \\ &=& \displaystyle \sum_{j=1}^n \lambda_j(v_{2j-1}v_{2j}^T-v_{2j}v_{2j-1}^T) \end{array}$$
+
+Next, to show $v_{2j-1}+iv_{2j}$ is indeed an eigenvector of $A$ associated with $i\lambda_j$, again consider the Youla decomposition with $AV=VT$:
+
+$$\begin{array}{lcl} A \begin{pmatrix} v_1 & v_2 & \dots & v_n \end{pmatrix} &=& \begin{pmatrix} v_1 & v_2 & \dots & v_n \end{pmatrix}\begin{pmatrix} 0 & \lambda_1\\ -\lambda_1 & 0 \\ &  & 0 & \lambda_2 \\ & & -\lambda_2 & 0 \\ & & & & \ddots \\ & & & & & 0 & \lambda_k \\ & & &  & & -\lambda_k & 0 \\ & & & & & & & 0 \\ & & & & & & & & \ddots \\ & & &  & & & &  & & 0  \end{pmatrix} \\ \\ \begin{pmatrix} Av_1 & Av_2 & \dots & Av_n \end{pmatrix} &=&  \begin{pmatrix} -\lambda_1v_2 & \lambda_1v_1 & -\lambda_2v_4 & -\lambda_2v_3 &\dots & -\lambda_kv_{2k} & \lambda_kv_{2k-1} & 0 & \dots & 0  \end{pmatrix} \end{array}$$
+
+Equating components, we get:
+
+$$\begin{array}{lcl} Av_{2j-1} &=& -\lambda_j v_{2j} \\ Av_{2j}&=&\lambda_j v_{2j-1} \end{array}$$
+
+Thus:
+
+$$\begin{array}{lcl} Av_{2j-1}+iAv_{2j} &=& -\lambda_j v_{2j}+i \lambda_j v_{2j-1} \\ A(v_{2j-1}+iv_{2j}) &=& i\lambda_j(v_{2j-1}+iv_{2j}) \end{array}$$
+
+\end{proof}
+
+\subsection{Computational examples using the Youla decomposition for ranking}
+
+We saw in the previous section that a skew symmetric matrix $A$ has a special spectral decomposition:
+
+$$A=\displaystyle \sum_{j=1}^n \lambda_j(v_{2j-1}v_{2j}^T-v_{2j}v_{2j-1}^T)$$
+
+If $\lambda_1$ denotes the spectral radius, we are interested in seeing how well the first term in this sum approximates $A$ in real world data sets, i.e. if $A\approx \lambda_1(v_1v_2^T-v_2v_1^T)$.
+
+We consider two data sets using the NBA regular season for 2013-2014. First, we consider a matrix $M$ based on normalized winning differences between teams:
+
+$$M(i,j)=\frac{\mbox{team i's wins over team j}-\mbox{team j's wins over team i}}{\mbox{total number of team i vs team j games}}$$
+
+Second, we consider a matrix $N$ based on normalized point differences between teams:
+
+$$N(i,j)=\frac{\mbox{team i's points scored against team j}-\mbox{team j's points scored against  team i}}{\mbox{total number of team i vs team j games}}$$
+
+First, we compare the above matrices with $\lambda_1(v_1v_2^T-v_2v_1^T)$ using the induced matrix 2-norm. That is, if $||\cdot||_2$ denotes the vector 2-norm, then:
+
+$$||A||_2=\max_{x\not=0} \frac{||Ax||_2}{||x||_2}$$
+
+Recall the fact that the induced matrix 2-norm gives the largest singular value. Since the singular values of a real skew symmetric matrix $A$ are the (non-negative) imaginary parts of the eigenvalues of $A$, we have
+
+$$||A||_2=\sigma_1=\lambda_1$$
+
+\begin{Claim}
+
+Given orthogonal unit vectors $v_1$ and $v_2$, we have:
+
+$$||\lambda_1(v_1v_2^T-v_2v_1^T)||_2=\lambda_1$$
+
+\end{Claim}
+
+\begin{proof}
+We show $||(v_1v_2^T-v_2v_1^T)||_2=1$. The singular values of $v_1v_2^T-v_2v_1^T$ are the square roots of the eigenvalues of $(v_1v_2^T-v_2v_1^T)^T(v_1v_2^T-v_2v_1^T)$. Observe:
+
+$$\begin{array}{lcl}
+(v_1v_2^T-v_2v_1^T)^T(v_1v_2^T-v_2v_1^T) &=& (v_2v_1^T-v_1v_2^T)(v_1v_2^T-v_2v_1^T) \\ &=& v_2v_2^T(v_1^Tv_1)+v_1v_1^T(v_2^Tv_2) \\ &=& v_2v_2^T+v_1v_1^T
+\end{array}$$
+
+The matrix $v_2v_2^T+v_1v_1^T$ has at most rank 2. There are at most 2 nonzero eigenvalues of this matrix. Since $v_2v_2^T$ and $v_1v_1^T$ are projection matrices:
+
+$$\begin{array}{lcl}
+(v_2v_2^T+v_1v_1^T)v_1 &=& v_1 \\ (v_2v_2^T+v_1v_1^T)v_2 &=& v_2
+\end{array}$$
+
+Thus, the only nonzero eigenvalue of $v_2v_2^T+v_1v_1^T$ is 1. So, the largest singular value of $v_1v_2^T-v_2v_1^T$ is 1.
+\end{proof}
+
+Using MATLAB, we find:
+
+\begin{itemize}
+
+\item $||M||_2=||\lambda_1(v_1v_2^T-v_2v_1^T)||_2=\lambda_1=9.91$
+\item $||M-\lambda_1(v_1v_2^T-v_2v_1^T)||_2=4.78$
+
+\end{itemize}
+
+Next, in terms of component wise percent difference, we found that on average, the components of matrix $M$ deviated from those in $\lambda_1(v_1v_2^T-v_2v_1^T)$ in magnitude by 38\%. \\
+
+Next, we compare $N$ and $\lambda_1(v_1v_2^T-v_2v_1^T)$.
+
+\begin{itemize}
+
+\item $||N||_2=||\lambda_1(v_1v_2^T-v_2v_1^T)||_2=\lambda_1=0.73$
+\item $||N-\lambda_1(v_1v_2^T-v_2v_1^T)||_2=0.30$
+
+\end{itemize}
+ 
+ Here, on average, the components of matrix $M$ deviated from those in $\lambda_1(v_1v_2^T-v_2v_1^T)$ in magnitude by 129\%.
+ 
+  
 \section{Our methods}\label{sec:methods}
 
 \subsection{Pairwise dominance}
